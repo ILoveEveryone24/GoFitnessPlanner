@@ -18,14 +18,12 @@ const(
 	Yellow = "\033[33m"
 )
 
-type Set struct{
-	Reps int `json:"reps"`
-	Weight float32 `json:"weight"`
-}
 
 type Exercise struct{
 	Name string `json:"name"`
-	Sets []Set `json:"sets"`
+	Sets int `json:"sets"`
+	Reps int `json:"reps"`
+	Weight float32 `json:"weight"`
 }
 
 type Program struct{
@@ -118,6 +116,72 @@ func listPrograms(input int) int{
 					fmt.Printf("	Exercise: %v\n", exercise.Name)
 				}
 			}
+
+			for{
+				var choice int
+
+				fmt.Println("What would you like to do?")
+				fmt.Println("1: Add new exercise \n2: Edit existing exercise \n3: Exit")
+
+				fmt.Scan(&choice)
+				
+				if choice == 1{
+					clear()
+					
+					var name string
+					var sets int
+					var reps int
+					var weight float32
+
+					fmt.Println("Name of the exercise: ")
+					fmt.Scan(&name)
+
+					fmt.Printf("How many sets of %v?", name)
+					fmt.Scan(&sets)
+
+					fmt.Printf("How many reps of %v per set?", name)
+					fmt.Scan(&reps)
+
+					fmt.Println("How much weight per set?")
+					fmt.Scan(&weight)
+
+					exercise := Exercise{
+						Name: name,
+						Sets: sets,
+						Reps: reps,
+						Weight: weight,
+					}
+
+					program.Exercises = append(program.Exercises, exercise)
+
+					jsonData, err := json.Marshal(program)
+					if err != nil{
+						log.Fatal(err)
+					}
+
+					err = file.Truncate(0)
+					if err != nil{
+						log.Fatal(err)
+					}
+
+					_, err = file.Write(jsonData)
+					if err != nil{
+						log.Fatal(err)
+					}
+
+					fmt.Printf(Green + "Successfully added %v to %v" + Reset, name, program.Name)
+
+					
+				}else if choice == 2{
+					clear()
+
+
+				}else if choice == 3{
+					return 0
+				}else{
+					fmt.Println(Red + "Invalid input" + Reset)
+				}
+			}
 		} else if input == 0{
 			fmt.Print(cnt)
 			fmt.Println(". Program Name: ", program.Name)
@@ -176,11 +240,9 @@ func greet(){
 			return
 		} else{
 			clear()
-			fmt.Println("Invalid input\n")
+			fmt.Println(Red + "Invalid input\n" + Reset)
 		}
 	}
-	fmt.Println("You've entered: ", input)
-	
 }
 
 func main(){
